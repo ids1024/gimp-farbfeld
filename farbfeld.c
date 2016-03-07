@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
+
+#include <glib/gi18n.h>
 #include <libgimp/gimp.h>
 
 static void query(void);
@@ -93,8 +95,8 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
 
     image = gimp_image_new(width, height, GIMP_RGB);
     gimp_image_set_filename(image, filename);
-    layer = gimp_layer_new(image, "Background", width, height, GIMP_RGBA_IMAGE,
-                           100.0, GIMP_NORMAL_MODE);
+    layer = gimp_layer_new(image, _("Background"), width, height,
+                           GIMP_RGBA_IMAGE,100.0, GIMP_NORMAL_MODE);
     gimp_image_insert_layer(image, layer, 0, 0);
     drawable = gimp_drawable_get(layer);
     gimp_pixel_rgn_init(&pixel_region, drawable, 0, 0, width,
