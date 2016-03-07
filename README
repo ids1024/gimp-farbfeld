@@ -1,0 +1,4 @@
+Install
+-------
+
+gimptool-2.0 --install ./farbfeld.c
