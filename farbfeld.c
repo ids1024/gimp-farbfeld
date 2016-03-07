@@ -28,11 +28,19 @@ static void query(void) {
       {GIMP_PDB_IMAGE, "image", "Output image"},
   };
 
-  gimp_install_procedure(
-      "file_farbfeld_load", "Loads farbfeld images", "Loads farbfeld images.",
-      "Ian D. Scott", "Copyright Ian D. Scott", "2016", "farbfeld image", NULL,
-      GIMP_PLUGIN, G_N_ELEMENTS(load_args), G_N_ELEMENTS(load_return_vals),
-      load_args, load_return_vals);
+  gimp_install_procedure("file_farbfeld_load",
+          "Loads farbfeld images",
+          "Loads farbfeld images.",
+          "Ian D. Scott",
+          "Copyright Ian D. Scott",
+          "2016",
+          "farbfeld image",
+          NULL,
+          GIMP_PLUGIN,
+          G_N_ELEMENTS(load_args),
+          G_N_ELEMENTS(load_return_vals),
+          load_args,
+          load_return_vals);
 
   gimp_register_load_handler("file_farbfeld_load", "farbfeld", "");
 }
