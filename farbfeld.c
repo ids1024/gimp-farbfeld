@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 
 #include <glib/gi18n.h>
+#include <glib/gstdio.h>
 #include <libgimp/gimp.h>
 
 static void query(void);
@@ -88,7 +89,7 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
 
   if (!strcmp(name, "file_farbfeld_load")) {
     filename = param[1].data.d_string;
-    file = fopen(filename, "rb");
+    file = g_fopen(filename, "rb");
     fread(hdr, 1, sizeof(hdr), file);
     width = ntohl(*((uint32_t *)(hdr + 8)));
     height = ntohl(*((uint32_t *)(hdr + 12)));
@@ -143,7 +144,7 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
     gimp_pixel_rgn_init(&pixel_region, drawable, 0, 0, width,
                         height, FALSE, FALSE);
 
-    file = fopen(filename, "wb");
+    file = g_fopen(filename, "wb");
     memcpy(hdr, "farbfeld", strlen("farbfeld"));
     *((uint32_t *)(hdr + 8)) = htonl(width);
     *((uint32_t *)(hdr + 12)) = htonl(height);
