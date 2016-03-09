@@ -1,4 +1,4 @@
 Install
 -------
 
-gimptool-2.0 --install ./farbfeld.c
+Build with "make", install to user home directory with "make install".
