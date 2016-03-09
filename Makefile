@@ -7,7 +7,12 @@ OBJ = ${SRC:.c=.o}
 
 all: farbfeld
 
-.c.o: config.mk
+${OBJ}: config.h config.mk
+
+config.h:
+	cp config.def.h $@
+
+.c.o:
 	${CC} ${INCLUDES} ${CFLAGS} -o $@ -c $<
 
 farbfeld: ${OBJ}

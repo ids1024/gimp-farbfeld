@@ -8,6 +8,8 @@
 #include <glib/gstdio.h>
 #include <libgimp/gimp.h>
 
+#include "config.h"
+
 static void query(void);
 static void run(const gchar *name, gint nparams, const GimpParam *param,
                 gint *nreturn_vals, GimpParam **return_vals);
@@ -68,9 +70,9 @@ static void query(void) {
           save_args,
           NULL);
 
-  gimp_register_magic_load_handler("file_farbfeld_load", "farbfeld", "",
+  gimp_register_magic_load_handler("file_farbfeld_load", extensions, "",
           "0,string,farbfeld");
-  gimp_register_save_handler("file_farbfeld_save", "farbfeld", "");
+  gimp_register_save_handler("file_farbfeld_save", extensions, "");
 }
 
 static void run(const gchar *name, gint nparams, const GimpParam *param,
