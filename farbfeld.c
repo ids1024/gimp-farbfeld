@@ -7,6 +7,7 @@
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 #include <libgimp/gimp.h>
+#include <bzlib.h>
 
 #include "config.h"
 
@@ -87,13 +88,23 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
   guchar *buf;
   GimpDrawable *drawable;
   GimpPixelRgn pixel_region;
+  BZFILE *bz2 = NULL;
+  char *ext;
 
   *return_vals = values;
 
   if (!strcmp(name, "file_farbfeld_load")) {
     filename = param[1].data.d_string;
     file = g_fopen(filename, "rb");
+
     fread(hdr, 1, sizeof(hdr), file);
+    if (!memcmp(hdr, "BZh", 3)) {
+        /* File is compressed with bzip2 */
+        rewind(file);
+        bz2 = BZ2_bzReadOpen(NULL, file, 0, 0, NULL, 0);
+        BZ2_bzRead(NULL, bz2, hdr, sizeof(hdr));
+    }
+
     width = ntohl(*((uint32_t *)(hdr + 8)));
     height = ntohl(*((uint32_t *)(hdr + 12)));
 
@@ -110,12 +121,17 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
 
     for (i = 0; i < height; i++) {
       for (j = 0; j < width; j++) {
-        fread(rgba, sizeof(uint16_t), 4, file);
+        if (bz2 != NULL)
+            BZ2_bzRead(NULL, bz2, rgba, sizeof(uint16_t)*4);
+        else
+            fread(rgba, sizeof(uint16_t), 4, file);
         for (k = 0; k < 4; k++)
           buf[i*width*4 + j*4 + k] = ntohs(rgba[k]) / 257;
       }
     }
 
+    if (bz2 != NULL)
+        BZ2_bzReadClose(NULL, bz2);
     fclose(file);
     gimp_pixel_rgn_set_rect(&pixel_region, buf, 0, 0, width, height);
     free(buf);
@@ -148,10 +164,17 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
                         height, FALSE, FALSE);
 
     file = g_fopen(filename, "wb");
+    ext = strrchr(filename, '.');
+    if (ext && (!strcmp(ext, ".bz2")))
+        bz2 = BZ2_bzWriteOpen(NULL, file, 9, 0, 0);
+
     memcpy(hdr, "farbfeld", strlen("farbfeld"));
     *((uint32_t *)(hdr + 8)) = htonl(width);
     *((uint32_t *)(hdr + 12)) = htonl(height);
-    fwrite(hdr, sizeof(hdr), 1, file);
+    if (bz2 != NULL)
+        BZ2_bzWrite(NULL, bz2, hdr, sizeof(hdr));
+    else
+        fwrite(hdr, sizeof(hdr), 1, file);
 
     buf = malloc(height * width * 4);
     gimp_pixel_rgn_get_rect(&pixel_region, buf, 0, 0, width, height);
@@ -160,11 +183,16 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
       for (j = 0; j < width; j++) {
         for (k = 0; k < 4; k++)
           rgba[k] = htons(buf[i*width*4 + j*4 + k] * 257);
-        fwrite(rgba, sizeof(uint16_t), 4, file);
+        if (bz2 != NULL)
+            BZ2_bzWrite(NULL, bz2, rgba, sizeof(uint16_t)*4);
+        else
+            fwrite(rgba, sizeof(uint16_t), 4, file);
       }
     }
 
     free(buf);
+    if (bz2 != NULL)
+        BZ2_bzWriteClose(NULL, bz2, 0, NULL, NULL);
     fclose(file);
     gimp_drawable_detach(drawable);
 
