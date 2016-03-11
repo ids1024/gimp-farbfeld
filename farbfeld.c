@@ -97,10 +97,10 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
 
     fread(hdr, 1, sizeof(hdr), file);
     if (!memcmp(hdr, "BZh", 3)) {
-        /* File is compressed with bzip2 */
-        rewind(file);
-        bz2 = BZ2_bzReadOpen(NULL, file, 0, 0, NULL, 0);
-        BZ2_bzRead(NULL, bz2, hdr, sizeof(hdr));
+      /* File is compressed with bzip2 */
+      rewind(file);
+      bz2 = BZ2_bzReadOpen(NULL, file, 0, 0, NULL, 0);
+      BZ2_bzRead(NULL, bz2, hdr, sizeof(hdr));
     }
 
     width = ntohl(*((uint32_t *)(hdr + 8)));
@@ -120,16 +120,16 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
     for (i = 0; i < height; i++) {
       for (j = 0; j < width; j++) {
         if (bz2 != NULL)
-            BZ2_bzRead(NULL, bz2, rgba, sizeof(uint16_t)*4);
+          BZ2_bzRead(NULL, bz2, rgba, sizeof(uint16_t)*4);
         else
-            fread(rgba, sizeof(uint16_t), 4, file);
+          fread(rgba, sizeof(uint16_t), 4, file);
         for (k = 0; k < 4; k++)
           buf[i*width*4 + j*4 + k] = ntohs(rgba[k]) / 257;
       }
     }
 
     if (bz2 != NULL)
-        BZ2_bzReadClose(NULL, bz2);
+      BZ2_bzReadClose(NULL, bz2);
     fclose(file);
     gimp_pixel_rgn_set_rect(&pixel_region, buf, 0, 0, width, height);
     free(buf);
@@ -170,9 +170,9 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
     *((uint32_t *)(hdr + 8)) = htonl(width);
     *((uint32_t *)(hdr + 12)) = htonl(height);
     if (bz2 != NULL)
-        BZ2_bzWrite(NULL, bz2, hdr, sizeof(hdr));
+      BZ2_bzWrite(NULL, bz2, hdr, sizeof(hdr));
     else
-        fwrite(hdr, sizeof(hdr), 1, file);
+      fwrite(hdr, sizeof(hdr), 1, file);
 
     buf = malloc(height * width * 4);
     gimp_pixel_rgn_get_rect(&pixel_region, buf, 0, 0, width, height);
@@ -182,15 +182,15 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
         for (k = 0; k < 4; k++)
           rgba[k] = htons(buf[i*width*4 + j*4 + k] * 257);
         if (bz2 != NULL)
-            BZ2_bzWrite(NULL, bz2, rgba, sizeof(uint16_t)*4);
+          BZ2_bzWrite(NULL, bz2, rgba, sizeof(uint16_t)*4);
         else
-            fwrite(rgba, sizeof(uint16_t), 4, file);
+          fwrite(rgba, sizeof(uint16_t), 4, file);
       }
     }
 
     free(buf);
     if (bz2 != NULL)
-        BZ2_bzWriteClose(NULL, bz2, 0, NULL, NULL);
+      BZ2_bzWriteClose(NULL, bz2, 0, NULL, NULL);
     fclose(file);
     gimp_drawable_detach(drawable);
 
