@@ -79,17 +79,15 @@ static void query(void) {
 static void run(const gchar *name, gint nparams, const GimpParam *param,
                 gint *nreturn_vals, GimpParam **return_vals) {
   static GimpParam values[2];
-  char *filename;
-  gint32 image, layer;
-  uint16_t height, width, i, j, k;
+  char *filename, *ext;
   FILE *file;
   uint8_t hdr[strlen("farbfeld") + 2 * sizeof(uint32_t)];
-  uint16_t rgba[4];
+  uint16_t rgba[4], height, width, i, j, k;
   guchar *buf;
+  gint32 image, layer;
   GimpDrawable *drawable;
   GimpPixelRgn pixel_region;
   BZFILE *bz2 = NULL;
-  char *ext;
 
   *return_vals = values;
 
