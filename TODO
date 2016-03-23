@@ -1,0 +1,3 @@
+- Error handling code
+- 16 bit color support, when gimp 2.10 is released with support for it
+- Handle saving grayscale image
