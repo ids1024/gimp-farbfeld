@@ -1,2 +1,2 @@
 /* Comma separated list of file extensions to handle */
-static const char extensions[] = "ff";
+#define extensions "ff"
