@@ -1,0 +1,6 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+UseTab: Never
+BreakBeforeBraces: Attach
+AllowShortFunctionsOnASingleLine: false
+BinPackArguments: false

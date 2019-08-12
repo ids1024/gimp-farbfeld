@@ -1,13 +1,13 @@
-#include <stdlib.h>
+#include <arpa/inet.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <arpa/inet.h>
 
+#include <bzlib.h>
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 #include <libgimp/gimp.h>
-#include <bzlib.h>
 
 #include "config.h"
 
@@ -36,43 +36,42 @@ static void query(void) {
       {GIMP_PDB_IMAGE, "image", "Input image"},
       {GIMP_PDB_DRAWABLE, "drawable", "Drawable to save"},
       {GIMP_PDB_STRING, "filename", "The name of the file to save"},
-      {GIMP_PDB_STRING, "raw-filename", "The name of the file to save"}
-  };
+      {GIMP_PDB_STRING, "raw-filename", "The name of the file to save"}};
 
   static const GimpParamDef load_return_vals[] = {
       {GIMP_PDB_IMAGE, "image", "Output image"},
   };
 
   gimp_install_procedure("file_farbfeld_load",
-          "Loads farbfeld images",
-          "Loads farbfeld images.",
-          "Ian D. Scott",
-          "Copyright Ian D. Scott",
-          "2016",
-          "farbfeld image",
-          NULL,
-          GIMP_PLUGIN,
-          G_N_ELEMENTS(load_args),
-          G_N_ELEMENTS(load_return_vals),
-          load_args,
-          load_return_vals);
+                         "Loads farbfeld images",
+                         "Loads farbfeld images.",
+                         "Ian D. Scott",
+                         "Copyright Ian D. Scott",
+                         "2016",
+                         "farbfeld image",
+                         NULL,
+                         GIMP_PLUGIN,
+                         G_N_ELEMENTS(load_args),
+                         G_N_ELEMENTS(load_return_vals),
+                         load_args,
+                         load_return_vals);
 
   gimp_install_procedure("file_farbfeld_save",
-          "Saves farbfeld images",
-          "Saves farbfeld images.",
-          "Ian D. Scott",
-          "Copyright Ian D. Scott",
-          "2016",
-          "farbfeld image",
-          NULL,
-          GIMP_PLUGIN,
-          G_N_ELEMENTS(save_args),
-          0,
-          save_args,
-          NULL);
+                         "Saves farbfeld images",
+                         "Saves farbfeld images.",
+                         "Ian D. Scott",
+                         "Copyright Ian D. Scott",
+                         "2016",
+                         "farbfeld image",
+                         NULL,
+                         GIMP_PLUGIN,
+                         G_N_ELEMENTS(save_args),
+                         0,
+                         save_args,
+                         NULL);
 
-  gimp_register_magic_load_handler("file_farbfeld_load", extensions, "",
-          "0,string,farbfeld");
+  gimp_register_magic_load_handler(
+      "file_farbfeld_load", extensions, "", "0,string,farbfeld");
   gimp_register_save_handler("file_farbfeld_save", extensions, "");
 }
 
@@ -101,12 +100,17 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
 
     image = gimp_image_new(width, height, GIMP_RGB);
     gimp_image_set_filename(image, filename);
-    layer = gimp_layer_new(image, _("Background"), width, height,
-                           GIMP_RGBA_IMAGE,100.0, GIMP_NORMAL_MODE);
+    layer = gimp_layer_new(image,
+                           _("Background"),
+                           width,
+                           height,
+                           GIMP_RGBA_IMAGE,
+                           100.0,
+                           GIMP_NORMAL_MODE);
     gimp_image_insert_layer(image, layer, 0, 0);
     drawable = gimp_drawable_get(layer);
-    gimp_pixel_rgn_init(&pixel_region, drawable, 0, 0, width,
-                        height, TRUE, FALSE);
+    gimp_pixel_rgn_init(
+        &pixel_region, drawable, 0, 0, width, height, TRUE, FALSE);
 
     buf = malloc(height * width * 4);
 
@@ -114,7 +118,7 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
       for (j = 0; j < width; j++) {
         fread(rgba, sizeof(uint16_t), 4, file);
         for (k = 0; k < 4; k++)
-          buf[i*width*4 + j*4 + k] = ntohs(rgba[k]) / 257;
+          buf[i * width * 4 + j * 4 + k] = ntohs(rgba[k]) / 257;
       }
     }
 
@@ -137,17 +141,17 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
 
     if (!gimp_drawable_is_rgb(drawable->drawable_id)) {
       *nreturn_vals = 2;
-      values[0].type          = GIMP_PDB_STATUS;
+      values[0].type = GIMP_PDB_STATUS;
       values[0].data.d_status = GIMP_PDB_EXECUTION_ERROR;
-      values[1].type          = GIMP_PDB_STRING;
+      values[1].type = GIMP_PDB_STRING;
       values[1].data.d_string = "Image must be rgb for farbfeld export.";
       return;
     }
 
     width = gimp_image_width(image);
     height = gimp_image_height(image);
-    gimp_pixel_rgn_init(&pixel_region, drawable, 0, 0, width,
-                        height, FALSE, FALSE);
+    gimp_pixel_rgn_init(
+        &pixel_region, drawable, 0, 0, width, height, FALSE, FALSE);
 
     file = g_fopen(filename, "wb");
     ext = strrchr(filename, '.');
@@ -163,7 +167,7 @@ static void run(const gchar *name, gint nparams, const GimpParam *param,
     for (i = 0; i < height; i++) {
       for (j = 0; j < width; j++) {
         for (k = 0; k < 4; k++)
-          rgba[k] = htons(buf[i*width*4 + j*4 + k] * 257);
+          rgba[k] = htons(buf[i * width * 4 + j * 4 + k] * 257);
         fwrite(rgba, sizeof(uint16_t), 4, file);
       }
     }
