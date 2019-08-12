@@ -22,9 +22,9 @@ clean:
 	rm -f farbfeld ${OBJ}
 
 install: farbfeld
-	cp farbfeld ${INSTALL_DIR}
+	gimptool-2.0 --install-bin $<
 
 uninstall:
-	rm -f ${INSTALL_DIR}/farbfeld
+	gimptool-2.0 --uninstall-bin farbfeld
 
 .PHONY: all clean install
