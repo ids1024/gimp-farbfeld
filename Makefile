@@ -4,6 +4,7 @@ include config.mk
 
 SRC = farbfeld.c
 OBJ = ${SRC:.c=.o}
+CFLAGS = `pkg-config --cflags glib-2.0` `pkg-config --cflags gimp-2.0`
 
 all: farbfeld
 
